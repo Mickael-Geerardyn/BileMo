@@ -6,14 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class BrandController extends AbstractController
+class ClientController extends AbstractController
 {
-    #[Route('/brand', name: 'app_brand')]
-    public function index(): JsonResponse
+    #[Route('/client/new', name: 'app_client_new', methods: ["POST"])]
+    public function newClient(): JsonResponse
     {
+
         return $this->json([
             'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/BrandController.php',
+            'path' => 'src/Controller/ClientController.php',
         ]);
     }
 }

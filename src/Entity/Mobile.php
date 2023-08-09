@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MobileRepository;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -34,11 +35,11 @@ class Mobile
 
     #[ORM\Column]
 	#[Groups("getMobile")]
-    private ?\DateTimeImmutable $created_at = null;
+    private ?DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
 	#[Groups("getMobile")]
-    private ?\DateTimeImmutable $updated_at = null;
+    private ?DateTimeImmutable $updated_at = null;
 
     #[ORM\ManyToOne(cascade: ["persist"], inversedBy: 'mobile')]
     #[ORM\JoinColumn(nullable: false)]
@@ -87,24 +88,24 @@ class Mobile
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?string
     {
-        return $this->created_at;
+        return $this->created_at->format("d-m-Y");
     }
 
     public function setCreatedAt(): static
     {
-        $this->created_at = new \DateTimeImmutable();
+        $this->created_at = new DateTimeImmutable();
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(?DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
 
