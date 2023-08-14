@@ -29,18 +29,22 @@ security:
             pattern: ^/api/login
             stateless: true
             json_login:
-                check_path: /api/login_check
+                check_path: 'api_login_check'
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
         api:
             pattern: ^/api
             stateless: true
+            entry_point: jwt
             jwt: ~
+            refresh_jwt:
+                check_path: 'api_refresh_token'
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-         - { path: ^/api/login, roles: PUBLIC_ACCESS }
+         - { path: ^/api/login, roles: PUBLIC_ACCESS}
+         - { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
          - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

@@ -20,5 +20,14 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    app.http_exception_service:
+        class: App\Services\HttpExceptionEmptyData
+
+    app.cache_service:
+        class: App\Services\CacheService
+        arguments:
+            $tagAwareCache: '@app.tag_aware_cache'
+            $httpExceptionService: '@app.http_exception_service'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
