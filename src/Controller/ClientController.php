@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Client;
 use App\Repository\UserRepository;
+use App\Services\CacheService;
 use App\Services\DeserializerService;
 use App\Services\HttpExceptionEmptyDataService;
 use App\Services\UserPasswordHasherService;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,8 +29,9 @@ class ClientController extends AbstractController
 		private readonly EntityManagerInterface        $manager,
 		private readonly UserRepository                $userRepository,
 		private readonly HttpExceptionEmptyDataService $httpExceptionEmptyData,
-		private readonly DeserializerService $deserializerService,
-		private readonly UserPasswordHasherService $passwordHasherService
+		private readonly DeserializerService 		   $deserializerService,
+		private readonly UserPasswordHasherService     $passwordHasherService,
+		private readonly CacheService $cacheService,
 	)
 	{
 	}
@@ -58,6 +61,7 @@ class ClientController extends AbstractController
 	 *
 	 * @return JsonResponse
 	 * @throws HttpException
+	 * @throws InvalidArgumentException
 	 */
 	#[Route('/api/client/{client_id}/user/{user_email}',
 		name: 'app_delete_client_user',
@@ -74,6 +78,8 @@ class ClientController extends AbstractController
 		$user = $this->userRepository->findOneClientUser($user_email, $client);
 
 		$this->httpExceptionEmptyData->throwHttpExceptionIfEmptyData($this->httpExceptionEmptyData::NOT_FOUND_STATUT_CODE, $user);
+
+		$this->cacheService->invalidateTagsAndKey([$this->cacheService::USERS_CACHE_TAG, $this->cacheService::USER_CACHE_TAG], $user_email);
 
 		$this->manager->remove($user);
 		$this->manager->flush();

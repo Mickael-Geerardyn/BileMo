@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Entity\Client;
 use App\Entity\Mobile;
-use App\Entity\User;
 use App\Repository\MobileRepository;
 use App\Repository\UserRepository;
 use JMS\Serializer\SerializationContext;
@@ -15,11 +14,12 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class CacheService
 {
-	private const MOBILES_CACHE_TAG = "mobilesCacheTag";
-	private const MOBILE_CACHE_TAG = "mobileCacheTag";
-	private const USERS_CACHE_TAG = "usersCacheTag";
-	private const USER_CACHE_TAG = "userCacheTag";
+	public const MOBILES_CACHE_TAG = "mobilesCacheTag";
+	public const MOBILE_CACHE_TAG = "mobileCacheTag";
+	public const USERS_CACHE_TAG = "usersCacheTag";
+	public const USER_CACHE_TAG = "userCacheTag";
 	private const USER_CACHE_ID = "user_email_";
+	private const EXPIRATION_TIME_CACHE = 36000;
 
 	public function __construct(
 		private readonly TagAwareCacheInterface $tagAwareCache,
@@ -42,6 +42,7 @@ class CacheService
 			return $this->tagAwareCache->get($mobile->getId(), function (ItemInterface $item) use ($mobile){
 
 				$item->tag(self::MOBILE_CACHE_TAG);
+				$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 				$context = SerializationContext::create()->setGroups(['getMobile']);
 
 				return $this->serializer->serialize($mobile, "json", $context);
@@ -59,6 +60,7 @@ class CacheService
 		return $this->tagAwareCache->get($MobilesCacheId, function (ItemInterface $item) {
 
 				$item->tag(self::MOBILES_CACHE_TAG);
+				$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 
 				$mobilesList = $this->mobileRepository->findAll();
 
@@ -79,6 +81,7 @@ class CacheService
 		return $this->tagAwareCache->get($usersCacheId, function (ItemInterface $item) use ($client)
 		{
 			$item->tag(self::USERS_CACHE_TAG);
+			$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 
 			$usersList = $this->userRepository->findBy(["client" => $client]);
 
@@ -103,10 +106,24 @@ class CacheService
 			$this->httpExceptionService->throwHttpExceptionIfEmptyData($this->httpExceptionService::NOT_FOUND_STATUT_CODE, $usersList);
 
 			$item->tag(self::USER_CACHE_TAG);
+			$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 
 			$context = SerializationContext::create()->setGroups(['getClientUser']);
 
 			return $this->serializer->serialize($usersList, "json", $context);
 		});
+	}
+
+	/**
+	 * @throws InvalidArgumentException
+	 */
+	public function invalidateTagsAndKey(array $tags, string $userEmail = null): bool
+	{
+		if(!$userEmail)
+		{
+			$this->tagAwareCache->delete(self::USER_CACHE_ID . $userEmail);
+		}
+
+		return $this->tagAwareCache->invalidateTags($tags);
 	}
 }
