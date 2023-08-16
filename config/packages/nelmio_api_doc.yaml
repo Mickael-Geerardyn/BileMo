@@ -1,0 +1,86 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: BileMo API
+            description: This is the BileMo API documentation
+            version: 1.0.0
+        paths: # Placer 'paths' sous 'documentation'
+            '/api/login_check':
+                post:
+                    operationId: postCredentialsItem
+                    tags:
+                        - Token
+                    summary: Permet d'obtenir le token JWT pour se logger.
+                    requestBody:
+                        description: Crée un nouveau token JWT
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Credentials'
+                    responses:
+                        '200':
+                            description: Récupère le token JWT
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Token'
+            '/api/client/{client_id}/user/{user_email}':
+                get:
+                    tags:
+                        - User
+                    summary: Obtain data of client's user
+                    operationId: getClientUser
+                    parameters:
+                        -
+                            name: client_id
+                            in: path
+                            description: 'Add unique client identifier'
+                            required: true
+                            schema:
+                                type: integer
+                            examples:
+                                int:
+                                    summary: '1'
+                                    value: '1'
+                        -
+                            name: user_email
+                            in: path
+                            description: 'Add the user email'
+                            required: true
+                            schema:
+                                type: string
+                            examples:
+                                string:
+                                    summary: 'user@BileMo.com'
+                                    value: 'user@BileMo.com'
+                    responses:
+                        '200':
+                            description: Récupère les données d'un utilisateur
+                                lié à un client
+        components:
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        token:
+                            type: string
+                            readOnly: true
+                Credentials:
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                            default: user@BileMo.com
+                        password:
+                            type: string
+                            default: password
+            securitySchemes:
+                bearerAuth:
+                    type: apiKey
+                    in: header
+                    name: Authorization # or another header name
+        security:
+            - bearerAuth: [ ]
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

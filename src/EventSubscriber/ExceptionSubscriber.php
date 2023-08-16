@@ -29,7 +29,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
 			$data = [
 				'status' => $exception->getStatusCode(),
-				'message' => $exception->getMessage() //(self::HTTP_CODES_MESSAGES[$exception->getStatusCode()]) ? self::HTTP_CODES_MESSAGES[$exception->getStatusCode()] : $exception->getMessage()
+				'message' => (self::HTTP_CODES_MESSAGES[$exception->getStatusCode()]) ? self::HTTP_CODES_MESSAGES[$exception->getStatusCode()] : $exception->getMessage()
 			];
 
 			$event->setResponse(new JsonResponse($data));
