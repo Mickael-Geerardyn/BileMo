@@ -7,29 +7,30 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BrandRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Brand
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-	#[Groups("getMobile")]
+	#[Groups(["getMobiles", "getMobile"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-	#[Groups("getMobile")]
+	#[Groups(["getMobiles", "getMobile"])]
 	#[Assert\NotBlank(message: "Le nom de la marque est obligatoire")]
     private ?string $name = null;
 
     #[ORM\Column]
-	#[Groups("getMobile")]
+	#[Groups(["getMobiles", "getMobile"])]
     private ?DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
-	#[Groups("getMobile")]
+	#[Groups(["getMobiles", "getMobile"])]
     private ?DateTimeImmutable $updated_at = null;
 
     #[ORM\OneToMany(mappedBy: 'brand', targetEntity: Mobile::class, orphanRemoval: true)]
@@ -57,11 +58,12 @@ class Brand
         return $this;
     }
 
-    public function getCreatedAt(): string
+    public function getCreatedAt(): ?DateTimeImmutable
     {
-        return $this->created_at->format("d-m-Y");
+        return $this->created_at;
     }
 
+	#[ORM\PrePersist]
     public function setCreatedAt(): static
     {
         $this->created_at = new DateTimeImmutable();
