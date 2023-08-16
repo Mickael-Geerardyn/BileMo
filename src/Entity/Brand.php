@@ -11,6 +11,7 @@ use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BrandRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Brand
 {
     #[ORM\Id]
@@ -62,6 +63,7 @@ class Brand
         return $this->created_at;
     }
 
+	#[ORM\PrePersist]
     public function setCreatedAt(): static
     {
         $this->created_at = new DateTimeImmutable();

@@ -18,10 +18,9 @@ class AppFixtures extends Fixture
 	private array $brandsList;
 
 	public function __construct(
-		private UserPasswordHasherInterface $passwordHasher
+		private readonly UserPasswordHasherInterface $passwordHasher
 	)
 	{
-		$this->passwordHasher = $passwordHasher;
 	}
 	public function load(ObjectManager $manager): void
 	{

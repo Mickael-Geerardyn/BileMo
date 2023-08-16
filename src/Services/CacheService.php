@@ -26,7 +26,7 @@ class CacheService
 		private readonly MobileRepository $mobileRepository,
 		private readonly UserRepository $userRepository,
 		private readonly SerializerInterface $serializer,
-		private readonly HttpExceptionEmptyData $httpExceptionService
+		private readonly HttpExceptionEmptyDataService $httpExceptionService
 	)
 	{
 	}

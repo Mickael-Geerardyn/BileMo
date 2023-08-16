@@ -8,8 +8,23 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+
+/**
+ *	@Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *	 		"app_mobile",
+ *		parameters = {
+ *	 		"id" = "expr(object.getId())"
+ * 		},
+ *	 ),
+ *     exclusion = @Hateoas\Exclusion({"getMobiles", "getMobile"})
+ * )
+ */
 #[ORM\Entity(repositoryClass: MobileRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Mobile
 {
     #[ORM\Id]
@@ -93,6 +108,7 @@ class Mobile
         return $this->created_at;
     }
 
+	#[ORM\PrePersist]
     public function setCreatedAt(): static
     {
         $this->created_at = new DateTimeImmutable();

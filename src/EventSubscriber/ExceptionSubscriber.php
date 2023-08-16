@@ -17,6 +17,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 			403 => "Accès refusé",
 			404 => "La resource demandée n'a pas été trouvée",
 			405 => "Méthode HTTP non autorisée",
+			406 => "L'email de l'utilisateur est déjà existant",
 			500 => "Une erreur inconnue est survenue"
 		];
 

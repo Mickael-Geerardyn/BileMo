@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Mobile;
 use App\Services\CacheService;
-use App\Services\HttpExceptionEmptyData;
+use App\Services\HttpExceptionEmptyDataService;
 use JMS\Serializer\SerializationContext;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +18,7 @@ class MobileController extends AbstractController
 
 	public function __construct(
 		private readonly CacheService $cacheService,
-		private readonly HttpExceptionEmptyData $httpExceptionEmptyData
+		private readonly HttpExceptionEmptyDataService $httpExceptionEmptyData
 	)
 	{
 	}

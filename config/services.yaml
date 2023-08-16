@@ -21,12 +21,17 @@ services:
             - '../src/Kernel.php'
 
     app.http_exception_service:
-        class: App\Services\HttpExceptionEmptyData
+        class: App\Services\HttpExceptionEmptyDataService
 
     app.cache_service:
         class: App\Services\CacheService
         arguments:
             $tagAwareCache: '@app.tag_aware_cache'
+            $httpExceptionService: '@app.http_exception_service'
+
+    app.deserializer_service:
+        class: App\Services\DeserializerService
+        arguments:
             $httpExceptionService: '@app.http_exception_service'
 
     # add more service definitions when explicit configuration is needed

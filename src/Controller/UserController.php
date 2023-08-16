@@ -15,13 +15,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-
+	private const USERS_CACHE_ID = "usersCacheId";
 	public function __construct(
 		private readonly CacheService $cacheService
 	)
 	{
 	}
-	private const USERS_CACHE_ID = "usersCacheId";
 
 	/**
 	 * @param Client $client
@@ -32,7 +31,7 @@ class UserController extends AbstractController
 	 */
 	#[Route('/api/client/{client_id}/user/{user_email}',
 		name: 'app_client_user',
-		requirements: ['client_id' => '\d+', 'user_email' => '.+@.+\\..+'],
+		requirements: ['client_id' => '\d+', 'user_email' => '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'],
 		methods: ["GET"]
 	)]
 	#[ParamConverter('client', class: Client::class, options: ['id' => 'client_id'])]
@@ -41,7 +40,6 @@ class UserController extends AbstractController
 		string $user_email
 	): JsonResponse
 	{
-
 		$jsonUsers = $this->cacheService->getUserCache($user_email ,$client);
 
 		return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);

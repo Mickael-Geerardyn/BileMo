@@ -3,14 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Client;
-use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Services\CacheService;
-use App\Services\HttpExceptionEmptyData;
+use App\Services\DeserializerService;
+use App\Services\HttpExceptionEmptyDataService;
+use App\Services\UserPasswordHasherService;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Psr\Cache\InvalidArgumentException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,26 +23,28 @@ class ClientController extends AbstractController
 {
 
 	public function __construct(
-		private readonly SerializerInterface    $serializer,
-		private readonly EntityManagerInterface $manager,
-		private readonly UserRepository         $userRepository,
-		private readonly HttpExceptionEmptyData $httpExceptionEmptyData,
+		private readonly SerializerInterface           $serializer,
+		private readonly EntityManagerInterface        $manager,
+		private readonly UserRepository                $userRepository,
+		private readonly HttpExceptionEmptyDataService $httpExceptionEmptyData,
+		private readonly DeserializerService $deserializerService,
+		private readonly UserPasswordHasherService $passwordHasherService
 	)
 	{
 	}
 
-	#[Route('/api/new/user',
-		name: 'app_new_user',
+	#[Route('/api/client/user',
+		name: 'app_client_user_new',
 		methods: ["POST"]
 	)]
+	#[IsGranted('ROLE_ADMIN', message: "Vous ne pouvez pas réaliser cette action")]
 	public function newClientUser(
 		Request $request
 	): JsonResponse
 	{
-		$user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+		$user = $this->deserializerService->requestDeserializer($request);
 
-		$this->manager->persist($user);
-		$this->manager->flush();
+		$this->passwordHasherService->setHashPassword($user);
 
 		$context = SerializationContext::create()->setGroups(['getClientUser']);
 		$jsonUser = $this->serializer->serialize($user, 'json', $context);
@@ -63,6 +65,7 @@ class ClientController extends AbstractController
 		methods: ["DELETE"]
 	)]
 	#[ParamConverter('client', class: Client::class, options: ['id' => 'client_id'])]
+	#[IsGranted('ROLE_ADMIN', message: "Vous ne pouvez pas réaliser cette action")]
 	public function deleteClientUser(
 		Client $client,
 		string $user_email
