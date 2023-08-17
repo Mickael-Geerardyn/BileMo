@@ -26,10 +26,10 @@ nelmio_api_doc:
                                         $ref: '#/components/schemas/Token'
             '/api/client/{client_id}/user/{user_email}':
                 get:
-                    tags:
-                        - User
-                    summary: Obtain data of client's user
                     operationId: getClientUser
+                    tags:
+                        - Users
+                    summary: Retrieves a user linked to a client
                     parameters:
                         -
                             name: client_id
@@ -41,7 +41,7 @@ nelmio_api_doc:
                             examples:
                                 int:
                                     summary: '1'
-                                    value: '1'
+                                    value: 1
                         -
                             name: user_email
                             in: path
@@ -55,8 +55,142 @@ nelmio_api_doc:
                                     value: 'user@BileMo.com'
                     responses:
                         '200':
-                            description: Récupère les données d'un utilisateur
-                                lié à un client
+                            description: | 
+                                Retrieves a user linked to a client
+                                - If user has Admin role, return the example 
+                                Value Schema
+                                - If user has User role, return the example 
+                                Value Schema without "delete" object
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Admin_User_Schema'
+                delete:
+                    operationId: deleteClientUser
+                    tags:
+                        - Users
+                    summary: deletes a user (user with admin role only)
+                    parameters:
+                        - name: client_id
+                          in: path
+                          description: 'Add unique client identifier'
+                          required: true
+                          schema:
+                              type: integer
+                          examples:
+                              int:
+                                  summary: '1'
+                                  value: 1
+                        - name: user_email
+                          in: path
+                          description: 'Add the user email'
+                          required: true
+                          schema:
+                              type: string
+                          examples:
+                              string:
+                                  summary: 'user@BileMo.com'
+                                  value: 'user@BileMo.com'
+                    responses:
+                        '204':
+                            description: |
+                                Delete a user linked to a client
+                                - authorized only for users with administrator role
+                                - returns only status 204
+            '/api/client/{id}/users':
+                get:
+                    tags:
+                        - Users
+                    summary: Retrieves users linked to a client
+                    operationId: getAllClientUsers
+                    parameters:
+                        -
+                            name: id
+                            in: path
+                            description: 'Add unique client identifier'
+                            required: true
+                            schema:
+                                type: integer
+                            examples:
+                                int:
+                                    summary: '1'
+                                    value: 1
+                    responses:
+                          200:
+                              description: | 
+                                Retrieves users linked to a client
+                                - If user has Admin role, return the example 
+                                Value Schema
+                                - If user has User role, return the example 
+                                Value Schema without "delete" object
+                              content:
+                                  application/json:
+                                      schema:
+                                          $ref: '#/components/schemas/Admin_User_Schema'
+            '/api/client/user':
+                post:
+                    tags:
+                        - Users
+                    summary: add a new user linked to a customer
+                    operationId: newClientUser
+                    requestBody:
+                        description: create a new user
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/New_User'
+                    responses:
+                        '200':
+                            description: | 
+                                Returns the new user
+                                - If user has Admin role, return the example 
+                                Value Schema
+                                - If user has User role, return the example 
+                                Value Schema without "delete" object
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Admin_User_Schema'
+            '/api/mobiles':
+                get:
+                    tags:
+                        - Mobiles
+                    summary: Retrieves all mobiles
+                    operationId: getMobilesList
+                    responses:
+                        '200':
+                            description: |
+                                Returns all mobiles
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Mobiles'
+            '/api/mobile/{id}':
+                get:
+                    tags:
+                        - Mobiles
+                    summary: Retrieve one mobile
+                    operationId: getMobile
+                    parameters:
+                        -
+                            name: id
+                            in: path
+                            description: 'Add unique mobile identifier'
+                            required: true
+                            schema:
+                                type: integer
+                            examples:
+                                int:
+                                    summary: '1'
+                                    value: 1
+                    responses:
+                        '200':
+                            description: |
+                                Returns one mobile
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Mobiles'
         components:
             schemas:
                 Token:
@@ -70,10 +204,83 @@ nelmio_api_doc:
                     properties:
                         username:
                             type: string
-                            default: user@BileMo.com
+                            default: admin@BileMo.com
                         password:
                             type: string
                             default: password
+                Admin_User_Schema:
+                    type: object
+                    properties:
+                        id:
+                            type: integer
+                        email:
+                            type: string
+                        roles:
+                            type: array
+                            items: string
+                        created_at:
+                            type: string
+                        client:
+                            type: object
+                            properties:
+                                id: integer
+                                name: string
+                                created_at: string
+                        _links:
+                            type: object
+                            properties:
+                                self:
+                                    type: object
+                                    properties:
+                                        href: string
+                                delete:
+                                    type: object
+                                    properties:
+                                        href: string
+                New_User:
+                    type: object
+                    properties:
+                        email:
+                            type: string
+                        password:
+                            type: string
+                        roles:
+                            type: array
+                            items: string
+                        client:
+                            type: object
+                            properties:
+                                id: integer
+                Mobiles:
+                    type: object
+                    properties:
+                        id:
+                            type: integer
+                        name:
+                            type: string
+                        description:
+                            type: string
+                        quantity:
+                            type: integer
+                        created_at:
+                            type: string
+                        brand:
+                            type: object
+                            properties:
+                                id:
+                                    type: integer
+                                name:
+                                    type: string
+                                created_at:
+                                    type: string
+                        _links:
+                            type: object
+                            properties:
+                                self:
+                                    type: object
+                                    properties:
+                                        href:
+                                            type: string
             securitySchemes:
                 bearerAuth:
                     type: apiKey
