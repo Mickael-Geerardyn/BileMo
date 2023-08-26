@@ -70,6 +70,7 @@ nelmio_api_doc:
                     tags:
                         - Users
                     summary: deletes a user (user with admin role only)
+                    description: This path is available with Admin role only
                     parameters:
                         - name: client_id
                           in: path
@@ -132,6 +133,7 @@ nelmio_api_doc:
                     tags:
                         - Users
                     summary: add a new user linked to a customer
+                    description: This path is available with Admin role only
                     operationId: newClientUser
                     requestBody:
                         description: create a new user
