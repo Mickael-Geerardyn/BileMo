@@ -20,15 +20,24 @@ class CacheService
 	public const USER_CACHE_TAG = "userCacheTag";
 	private const USER_CACHE_ID = "user_email_";
 	private const EXPIRATION_TIME_CACHE = 36000;
+	private string $usersCacheId = "usersCacheId_";
+	private string $mobilesCacheId = "mobilesCacheId_";
+	private string $page;
+	private string $limit;
 
 	public function __construct(
 		private readonly TagAwareCacheInterface $tagAwareCache,
-		private readonly MobileRepository $mobileRepository,
 		private readonly UserRepository $userRepository,
+		private readonly MobileRepository $mobileRepository,
 		private readonly SerializerInterface $serializer,
-		private readonly HttpExceptionEmptyDataService $httpExceptionService
+		private readonly HttpExceptionEmptyDataService $httpExceptionService,
+		private readonly RequestService $requestService
 	)
 	{
+		$this->page = $this->requestService->getRequestKeyPageData();
+		$this->limit = $this->requestService->getRequestKeyLimitData();
+		$this->usersCacheId .= $this->page . "_" . $this->limit;
+		$this->mobilesCacheId .= $this->page . "_" . $this->limit;
 	}
 
 	/**
@@ -50,19 +59,17 @@ class CacheService
 	}
 
 	/**
-	 * @param string $MobilesCacheId
-	 *
 	 * @return mixed
 	 * @throws InvalidArgumentException
 	 */
-	public function getMobilesCache(string $MobilesCacheId): mixed
+	public function getMobilesCache(): mixed
 	{
-		return $this->tagAwareCache->get($MobilesCacheId, function (ItemInterface $item) {
+		return $this->tagAwareCache->get($this->mobilesCacheId, function (ItemInterface $item) {
 
 				$item->tag(self::MOBILES_CACHE_TAG);
 				$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 
-				$mobilesList = $this->mobileRepository->findAll();
+				$mobilesList = $this->mobileRepository->findAllByPagination($this->page, $this->limit);
 
 				// Check if mobiles array is not empty before serialize. If mobiles is a serialize array, this will not be 	 an HttpException instance because param should be string or object, json is an array and so isn't entered in the if condition in ExceptionSubscriber to send good http statut code.
 				$this->httpExceptionService->throwHttpExceptionIfEmptyData($this->httpExceptionService::NOT_FOUND_STATUT_CODE, $mobilesList);
@@ -76,14 +83,14 @@ class CacheService
 	/**
 	 * @throws InvalidArgumentException
 	 */
-	public function getUsersCache(string $usersCacheId, Client $client)
+	public function getUsersCache(Client $client): mixed
 	{
-		return $this->tagAwareCache->get($usersCacheId, function (ItemInterface $item) use ($client)
+		return $this->tagAwareCache->get($this->usersCacheId, function (ItemInterface $item) use ($client)
 		{
 			$item->tag(self::USERS_CACHE_TAG);
 			$item->expiresAfter(self::EXPIRATION_TIME_CACHE);
 
-			$usersList = $this->userRepository->findBy(["client" => $client]);
+			$usersList = $this->userRepository->findAllByPagination($client, $this->page, $this->limit);
 
 			$this->httpExceptionService->throwHttpExceptionIfEmptyData($this->httpExceptionService::NOT_FOUND_STATUT_CODE, $usersList);
 
@@ -96,7 +103,7 @@ class CacheService
 	/**
 	 * @throws InvalidArgumentException
 	 */
-	public function getUserCache(string $userEmailCacheId, Client $client)
+	public function getUserCache(string $userEmailCacheId, Client $client): mixed
 	{
 		return $this->tagAwareCache->get(self::USER_CACHE_ID . $userEmailCacheId, function (ItemInterface $item) use ($userEmailCacheId, $client)
 		{

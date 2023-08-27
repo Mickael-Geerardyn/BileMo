@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Mobile;
 use App\Services\CacheService;
 use App\Services\HttpExceptionEmptyDataService;
-use JMS\Serializer\SerializationContext;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MobileController extends AbstractController
 {
-	private const ID_MOBILES_CACHE = "mobilesCache";
 
 	public function __construct(
 		private readonly CacheService $cacheService,
@@ -30,7 +28,7 @@ class MobileController extends AbstractController
     #[Route('/api/mobiles', name: 'app_mobiles_list', methods: ["GET"])]
     public function getMobilesList(): JsonResponse
     {
-		$jsonMobilesList = $this->cacheService->getMobilesCache(self::ID_MOBILES_CACHE);
+		$jsonMobilesList = $this->cacheService->getMobilesCache();
 
         return new JsonResponse($jsonMobilesList, Response::HTTP_OK, [], true);
     }

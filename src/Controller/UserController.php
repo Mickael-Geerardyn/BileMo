@@ -3,19 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Client;
-use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Services\CacheService;
 use Psr\Cache\InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class UserController extends AbstractController
 {
-	private const USERS_CACHE_ID = "usersCacheId";
 	public function __construct(
 		private readonly CacheService $cacheService
 	)
@@ -53,12 +54,14 @@ class UserController extends AbstractController
 	 */
 	#[Route('/api/client/{id}/users',
 		name: 'app_client_users',
-		requirements: ['id' => '\d+'] ,
-		methods: ["GET"]
+		requirements: ['id' => '\d+'],
+		methods: ["GET"],
 	)]
-    public function getAllClientUsers(Client $client): JsonResponse
+    public function getAllClientUsers(
+		Client $client
+	): JsonResponse
     {
-		$jsonUsers = $this->cacheService->getUsersCache(self::USERS_CACHE_ID, $client);
+		$jsonUsers = $this->cacheService->getUsersCache($client);
 
 		return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }

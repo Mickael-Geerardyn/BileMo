@@ -38,7 +38,7 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
 			$data = [
 				'status' => 500,
-				'message' => self::HTTP_CODES_MESSAGES[500]
+				'message' => $exception->getMessage() //self::HTTP_CODES_MESSAGES[500]
 			];
 		}
 

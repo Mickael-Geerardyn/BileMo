@@ -4,6 +4,7 @@ nelmio_api_doc:
             title: BileMo API
             description: This is the BileMo API documentation
             version: 1.0.0
+
         paths: # Placer 'paths' sous 'documentation'
             '/api/login_check':
                 post:
@@ -24,6 +25,7 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Token'
+
             '/api/client/{client_id}/user/{user_email}':
                 get:
                     operationId: getClientUser
@@ -65,6 +67,7 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Admin_User_Schema'
+
                 delete:
                     operationId: deleteClientUser
                     tags:
@@ -98,7 +101,8 @@ nelmio_api_doc:
                                 Delete a user linked to a client
                                 - authorized only for users with administrator role
                                 - returns only status 204
-            '/api/client/{id}/users':
+
+            '/api/client/{id}/users?page={page_id}&limit={limit_id}':
                 get:
                     tags:
                         - Users
@@ -116,6 +120,26 @@ nelmio_api_doc:
                                 int:
                                     summary: '1'
                                     value: 1
+                        - name: page_id
+                          in: path
+                          description: 'Page number'
+                          required: true
+                          schema:
+                              type: integer
+                          examples:
+                              int:
+                                  summary: '1'
+                                  value: 1
+                        - name: limit_id
+                          in: path
+                          description: 'Limit number'
+                          required: true
+                          schema:
+                              type: integer
+                          examples:
+                              int:
+                                  summary: '10'
+                                  value: 10
                     responses:
                           200:
                               description: | 
@@ -128,6 +152,7 @@ nelmio_api_doc:
                                   application/json:
                                       schema:
                                           $ref: '#/components/schemas/Admin_User_Schema'
+
             '/api/client/user':
                 post:
                     tags:
@@ -153,12 +178,34 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Admin_User_Schema'
-            '/api/mobiles':
+
+            '/api/mobiles?page={page_id}&limit={limit_id}':
                 get:
                     tags:
                         - Mobiles
                     summary: Retrieves all mobiles
                     operationId: getMobilesList
+                    parameters:
+                        - name: page_id
+                          in: path
+                          description: 'Page number'
+                          required: true
+                          schema:
+                              type: integer
+                          examples:
+                              int:
+                                  summary: '1'
+                                  value: 1
+                        - name: limit_id
+                          in: path
+                          description: 'Limit number'
+                          required: true
+                          schema:
+                              type: integer
+                          examples:
+                              int:
+                                  summary: '10'
+                                  value: 10
                     responses:
                         '200':
                             description: |
@@ -167,6 +214,7 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Mobiles'
+
             '/api/mobile/{id}':
                 get:
                     tags:
@@ -206,39 +254,41 @@ nelmio_api_doc:
                     properties:
                         username:
                             type: string
-                            default: admin@BileMo.com
+                            default: admin_0@BileMo.com
                         password:
                             type: string
                             default: password
                 Admin_User_Schema:
-                    type: object
-                    properties:
-                        id:
-                            type: integer
-                        email:
-                            type: string
-                        roles:
-                            type: array
-                            items: string
-                        created_at:
-                            type: string
-                        client:
-                            type: object
-                            properties:
-                                id: integer
-                                name: string
-                                created_at: string
-                        _links:
-                            type: object
-                            properties:
-                                self:
-                                    type: object
-                                    properties:
-                                        href: string
-                                delete:
-                                    type: object
-                                    properties:
-                                        href: string
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: integer
+                            email:
+                                type: string
+                            roles:
+                                type: array
+                                items: string
+                            created_at:
+                                type: string
+                            client:
+                                type: object
+                                properties:
+                                    id: integer
+                                    name: string
+                                    created_at: string
+                            _links:
+                                type: object
+                                properties:
+                                    self:
+                                        type: object
+                                        properties:
+                                            href: string
+                                    delete:
+                                        type: object
+                                        properties:
+                                            href: string
                 New_User:
                     type: object
                     properties:
@@ -254,35 +304,37 @@ nelmio_api_doc:
                             properties:
                                 id: integer
                 Mobiles:
-                    type: object
-                    properties:
-                        id:
-                            type: integer
-                        name:
-                            type: string
-                        description:
-                            type: string
-                        quantity:
-                            type: integer
-                        created_at:
-                            type: string
-                        brand:
-                            type: object
-                            properties:
-                                id:
-                                    type: integer
-                                name:
-                                    type: string
-                                created_at:
-                                    type: string
-                        _links:
-                            type: object
-                            properties:
-                                self:
-                                    type: object
-                                    properties:
-                                        href:
-                                            type: string
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            id:
+                                type: integer
+                            name:
+                                type: string
+                            description:
+                                type: string
+                            quantity:
+                                type: integer
+                            created_at:
+                                type: string
+                            brand:
+                                type: object
+                                properties:
+                                    id:
+                                        type: integer
+                                    name:
+                                        type: string
+                                    created_at:
+                                        type: string
+                            _links:
+                                type: object
+                                properties:
+                                    self:
+                                        type: object
+                                        properties:
+                                            href:
+                                                type: string
             securitySchemes:
                 bearerAuth:
                     type: apiKey
@@ -290,6 +342,7 @@ nelmio_api_doc:
                     name: Authorization # or another header name
         security:
             - bearerAuth: [ ]
+
     areas: # to filter documented areas
         path_patterns:
             - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

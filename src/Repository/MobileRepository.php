@@ -21,28 +21,14 @@ class MobileRepository extends ServiceEntityRepository
         parent::__construct($registry, Mobile::class);
     }
 
-//    /**
-//     * @return Mobile[] Returns an array of Mobile objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
 
-//    public function findOneBySomeField($value): ?Mobile
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+	public function findAllByPagination(int $page = 1, int $limit = 10)
+	{
+		return $this->createQueryBuilder('mobiles')
+					->setFirstResult($limit * ($page - 1))
+					->setMaxResults($limit)
+					->getQuery()
+					->getResult()
+			;
+	}
 }

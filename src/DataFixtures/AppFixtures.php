@@ -12,10 +12,12 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-	private const CLIENT_ARRAY = ["Client 1"];
+	private const USER_ARRAY = ["user_" => "ROLE_USER", "admin_" => "ROLE_ADMIN"];
+	private const CLIENT = "Client_";
 	private const BRAND_ARRAY = ["SONY" => "Xperia 1 V", "SAMSUNG" => "GalaxyS21", "APPLE" => "iPhone 18 Pro", "LG" => "Velvet", "GOOGLE" => "Pixel 7 Pro", "XIAOMI" => "12 PRO", "ONEPLUS" => "11"];
 
 	private array $brandsList;
+	private int $index = 0;
 
 	public function __construct(
 		private readonly UserPasswordHasherInterface $passwordHasher
@@ -49,48 +51,51 @@ class AppFixtures extends Fixture
 
 	public function loadMobile(ObjectManager $manager): void
 	{
-		foreach(self::BRAND_ARRAY as $brandType => $mobileType)
+		for($i = 0; $i < 30; $i++)
 		{
-			$mobile = new Mobile();
+			foreach(self::BRAND_ARRAY as $brandType => $mobileType)
+			{
+				$mobile = new Mobile();
 
-			$mobile->setName($mobileType);
-			$mobile->setDescription("Description du mobile ${mobileType} de la marque ${brandType}");
-			$mobile->setCreatedAt();
-			$mobile->setQuantity(rand(0, 20));
-			$mobile->setBrand($this->brandsList[array_search($mobileType,self::BRAND_ARRAY)]);
-			$mobile->setCreatedAt();
+				$mobile->setName($mobileType);
+				$mobile->setDescription("Description du mobile ${mobileType} de la marque ${brandType}");
+				$mobile->setCreatedAt();
+				$mobile->setQuantity(rand(0, 20));
+				$mobile->setBrand($this->brandsList[array_search($mobileType,self::BRAND_ARRAY)]);
+				$mobile->setCreatedAt();
 
-			$manager->persist($mobile);
+				$manager->persist($mobile);
+			}
 		}
 	}
 
 	public function loadClients(ObjectManager $manager): void
 	{
-		$client = new Client();
-		$client->setName(self::CLIENT_ARRAY[array_rand(self::CLIENT_ARRAY)]);
-		$client->setCreatedAt();
+		for ($i = 0; $i < 10; $i++)
+		{
+			$client = new Client();
+			$client->setName(self::CLIENT . $i);
+			$client->setCreatedAt();
 
-		$manager->persist($client);
+			$manager->persist($client);
 
-		$this->loadUsers($client, $manager);
+			$this->loadUsers($client, $manager);
+		}
 	}
 
 	public function loadUsers(Client $client, ObjectManager $manager): void
 	{
-		$user = new User();
-		$user->setEmail("user@BileMo.com");
-		$user->setRoles(["ROLE_USER"]);
-		$user->setPassword($this->passwordHasher->hashPassword($user, "password"));
-		$user->setClient($client);
-		$user->setCreatedAt();
-		$manager->persist($user);
-
-		$admin = new User();
-		$admin->setEmail("admin@BileMo.com");
-		$admin->setRoles(["ROLE_ADMIN"]);
-		$admin->setPassword($this->passwordHasher->hashPassword($admin, "password"));
-		$admin->setClient($client);
-		$admin->setCreatedAt();
-		$manager->persist($admin);
+		for($i = 0; $i < 25; $i++)
+		{
+			$user = new User();
+			$userType = array_rand(self::USER_ARRAY);
+			$user->setEmail($userType . $this->index . "@BileMo.com");
+			$user->setRoles([self::USER_ARRAY[$userType]]);
+			$user->setPassword($this->passwordHasher->hashPassword($user, "password"));
+			$user->setClient($client);
+			$user->setCreatedAt();
+			$manager->persist($user);
+			$this->index++;
+		}
 	}
 }
