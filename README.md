@@ -57,4 +57,4 @@ Load symfony server in the root project
 symfony server:start
 ```
 
-You can access to Swagger Api documentation from this link : http://localhost:8000/api/doc.
+You'll can access to Swagger Api documentation from this link : http://localhost:8000/api/doc or https://github.com/Mickael-Geerardyn/BileMo/blob/main/Documentation-BileMo.pdf.
